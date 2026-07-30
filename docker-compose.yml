@@ -1,0 +1,52 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: webappdb
+      MYSQL_USER: webuser
+      MYSQL_PASSWORD: webpass123
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uwebuser", "-pwebpass123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - three-tier-network
+
+  backend:
+    build: ./app-tier
+    container_name: backend-container
+    restart: unless-stopped
+    depends_on:
+      - mysql-db:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql-db
+      DB_USER: webuser
+      DB_PWD: webpass123
+      DB_DATABASE: webappdb
+    ports:
+      - "4000:4000"
+    networks:
+      - three-tier-network
+
+  frontend:
+    build: ./web-tier
+    container_name: frontend-container
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - three-tier-network
+
+networks:
+  three-tier-network:
+    driver: bridge
