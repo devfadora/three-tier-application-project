@@ -1,11 +1,20 @@
 const dbcreds = require('./DbConfig');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 const con = mysql.createConnection({
     host: dbcreds.DB_HOST,
+    port: dbcreds.DB_PORT || 3306,
     user: dbcreds.DB_USER,
     password: dbcreds.DB_PWD,
     database: dbcreds.DB_DATABASE
+});
+
+con.connect((err) => {
+    if (err) {
+        console.error("TransactionService DB Error:", err);
+    } else {
+        console.log("TransactionService connected.");
+    }
 });
 
 function addTransaction(amount,desc){
