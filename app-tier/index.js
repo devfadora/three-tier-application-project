@@ -23,10 +23,11 @@ console.log('DB_DATABASE:', process.env.DB_DATABASE);
 // Database client setup
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PWD,
     database: process.env.DB_DATABASE
-  });
+});
 
   db.connect((err) => {
     if (err) {
